@@ -1,4 +1,5 @@
 # oke-doke
+![image](https://github.com/alam0rt/oke-doke/assets/35046326/c3020877-c81a-4f05-bf51-4b79eb63d11e)
 
 Get a [free](https://www.oracle.com/au/cloud/free/), managed Kubernetes cluster with 3 arm64 worker nodes (1 vCPU & 8gb memory each)!
 
