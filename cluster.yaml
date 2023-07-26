@@ -1,0 +1,96 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: banshee
+    fluxChart: enabled
+  name: banshee
+  namespace: default
+spec:
+  controlPlaneRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+    kind: OCIManagedControlPlane
+    name: banshee
+    namespace: default
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+    kind: OCIManagedCluster
+    name: banshee
+    namespace: default
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: OCIManagedCluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: banshee
+  name: banshee
+  namespace: default
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaajxedcsvg4sa2rzb2vc5s7s24adwmjltl7ovo3qefmczcd5ujklpa
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: OCIManagedControlPlane
+metadata:
+  name: banshee
+  namespace: default
+spec:
+  version: v1.26.2
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachinePool
+metadata:
+  annotations:
+    cluster.x-k8s.io/replicas-managed-by: ""
+  name: banshee-mp-0
+  namespace: default
+spec:
+  clusterName: banshee
+  replicas: 3
+  template:
+    spec:
+      bootstrap:
+        dataSecretName: ""
+      clusterName: banshee
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+        kind: OCIManagedMachinePool
+        name: banshee-mp-0
+      version: v1.26.2
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: OCIManagedMachinePool
+metadata:
+  name: banshee-mp-0
+  namespace: default
+spec:
+  nodeShape: VM.Standard.A1.Flex
+  nodeShapeConfig:
+    memoryInGBs: "8"
+    ocpus: "1"
+  nodeSourceViaImage:
+    bootVolumeSizeInGBs: 50
+    imageId: ocid1.image.oc1.ap-melbourne-1.aaaaaaaarabn4sku3f5lhzn2j6jlh4ss2pt2v7zlcmz7gpaqtj2xg5vlewpq
+  sshPublicKey: ""
+  version: v1.26.2
+---
+apiVersion: addons.cluster.x-k8s.io/v1alpha1
+kind: HelmChartProxy
+metadata:
+  name: fluxv2
+  namespace: default
+spec:
+  chartName: flux2
+  clusterSelector:
+    matchLabels:
+      fluxChart: enabled
+  options:
+    atomic: true
+    install:
+      createNamespace: true
+    timeout: 5m
+  releaseName: gitops
+  repoURL: https://fluxcd-community.github.io/helm-charts
+  valuesTemplate: |
+    multitenancy:
+      enabled: true
+  version: 2.9.0

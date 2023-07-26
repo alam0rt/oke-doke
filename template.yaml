@@ -3,6 +3,7 @@ kind: Cluster
 metadata:
   labels:
     cluster.x-k8s.io/cluster-name: "${CLUSTER_NAME}"
+    fluxChart: enabled
   name: "${CLUSTER_NAME}"
   namespace: "${NAMESPACE}"
 spec:
@@ -62,11 +63,32 @@ metadata:
   namespace: default
 spec:
   version: "${KUBERNETES_VERSION}"
-  nodeShape: "${OCI_MANAGED_NODE_SHAPE=VM.Standard.E4.Flex}"
+  nodeShape: "${OCI_MANAGED_NODE_SHAPE=VM.Standard.A1.Flex}"
   sshPublicKey: "${OCI_SSH_KEY}"
   nodeSourceViaImage:
     imageId: ${OCI_MANAGED_NODE_IMAGE_ID:=""}
     bootVolumeSizeInGBs: ${OCI_MANAGED_NODE_BOOT_VOLUME_SIZE=50}
   nodeShapeConfig:
     ocpus: "${OCI_MANAGED_NODE_MACHINE_TYPE_OCPUS=1}"
+    memoryInGBs: "${OCI_MANAGED_NODE_MACHINE_TYPE_MEMORY=8}"
 ---
+apiVersion: addons.cluster.x-k8s.io/v1alpha1
+kind: HelmChartProxy
+metadata:
+  name: fluxv2
+spec:
+  options:
+    atomic: true
+    timeout: 5m
+    install:
+      createNamespace: true
+  clusterSelector:
+    matchLabels:
+      fluxChart: enabled
+  repoURL: https://fluxcd-community.github.io/helm-charts
+  chartName: flux2
+  releaseName: gitops
+  version: 2.9.0
+  valuesTemplate: |
+    multitenancy:
+      enabled: true
