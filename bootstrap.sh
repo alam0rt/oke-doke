@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
-set -x
 
 . .env
+
+export OCI_TENANCY_ID_B64="$(echo -n "$OCI_TENANCY_ID" | base64 | tr -d '\n')"
+export OCI_CREDENTIALS_FINGERPRINT_B64="$(echo -n "$OCI_CREDENTIALS_FINGERPRINT" | base64 | tr -d '\n')"
+export OCI_USER_ID_B64="$(echo -n "$OCI_USER_ID" | base64 | tr -d '\n')"
+export OCI_REGION_B64="$(echo -n "$OCI_REGION" | base64 | tr -d '\n')"
+export OCI_CREDENTIALS_KEY_B64=$(base64 < "${OCI_KEY_FILE}" | tr -d '\n')
+export OCI_SSH_KEY=$(cat "${HOME}/.ssh/your/key/pair")
+export KUBECONFIG=/tmp/kind.yaml # for exporting KIND kubeconfig
+export EXP_MACHINE_POOL=true
+export EXP_OKE=true
+export CLUSTERCTL_LOG_LEVEL=10 # debug
 
 # create bootstrap cluster
 kind create cluster --config kind.yaml || true
