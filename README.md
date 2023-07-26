@@ -14,6 +14,7 @@ Get a [free](https://www.oracle.com/au/cloud/free/), managed Kubernetes cluster 
 ## Instructions
 
 - Grab the prereqs
+- Set up an Oracle account & oci cli
 - Copy `./env.example` to `./.env` and fill out the missing parts
 - Run `./bootstrap.sh`
 - Sit back and relax
