@@ -25,13 +25,13 @@ kubectl wait deployments -n caaph-system caaph-controller-manager --for=conditio
 # create management cluster
 clusterctl generate cluster "${CLUSTER_NAME}" --from template.yaml --config ./clusterctl.yaml > cluster.yaml
 kubectl apply -f cluster.yaml --wait
-kubectl wait cluster "${CLUSTER_NAME}" --for=condition=Ready=true
-clusterctl get kubeconfig "${CLUSTER_NAME}" > ./banshee.kubeconfig
+kubectl wait cluster "${CLUSTER_NAME}" --for=condition=Ready=true --timeout=1h
+clusterctl get kubeconfig "${CLUSTER_NAME}" > ./"${CLUSTER_NAME}".kubeconfig
 kubectl cluster-info --kubeconfig ./"${CLUSTER_NAME}".kubeconfig
 
 # install CAPI to management cluster
-clusterctl init --infrastructure oci --wait-providers --kubeconfig ./"${CLUSTER_NAME}".kubeconfig
-kubectl wait deployments -n caaph-system caaph-controller-manager --for=condition=Available=true --kubeconfig ./"${CLUSTER_NAME}".kubeconfig
+clusterctl init --infrastructure oci --wait-providers --addon helm --kubeconfig ./"${CLUSTER_NAME}".kubeconfig
+kubectl wait deployments -n caaph-system caaph-controller-manager --for=condition=Available=true --kubeconfig ./"${CLUSTER_NAME}".kubeconfig --timeout=1h
 
 # move management cluster resource to management cluster
 clusterctl move --to-kubeconfig ./"${CLUSTER_NAME}".kubeconfig
